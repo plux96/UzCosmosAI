@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --accent: #00ff88;
+  --cyan: #00ffff;
+  --bg-dark: #050510;
+  --bg-panel: rgba(10, 22, 40, 0.85);
+  --border: rgba(0, 255, 136, 0.15);
+  --glow: rgba(0, 255, 136, 0.4);
+}
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg-dark);
+  color: #e0e0e0;
+  overflow: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,255,136,0.3); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,255,136,0.5); }
+
+/* Panel glass effect */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  backdrop-filter: blur(20px);
+}
+
+.panel-header {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-header .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--glow);
+  animation: pulse 2s infinite;
+}
+
+/* Threat level indicator */
+.threat-meter {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.threat-meter-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease, background 1s ease;
+}
+
+/* Grid lines overlay */
+.grid-overlay {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+}
+
+/* Scanline effect */
+.scanline::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(transparent, rgba(0,255,136,0.1), transparent);
+  animation: scan 4s linear infinite;
+}
+
+@keyframes scan {
+  0% { top: -2px; }
+  100% { top: 100%; }
+}
+
+/* Glow text */
+.text-glow {
+  text-shadow: 0 0 10px var(--glow), 0 0 20px rgba(0,255,136,0.2);
+}
+
+/* Status dot */
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.status-dot.online {
+  background: #00ff88;
+  box-shadow: 0 0 8px rgba(0,255,136,0.6);
+  animation: pulse 2s infinite;
+}
+.status-dot.error {
+  background: #ff4444;
+  box-shadow: 0 0 8px rgba(255,68,68,0.6);
+}
+.status-dot.offline {
+  background: #666;
+}
+
+/* Alert severity */
+.alert-critical { border-left: 3px solid #ff0000; }
+.alert-warning { border-left: 3px solid #ffaa00; }
+.alert-info { border-left: 3px solid #00ffff; }
+
+/* Number counter animation */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.count-animate {
+  animation: countUp 0.5s ease-out;
+}
+
+/* Hover effects */
+.hover-glow:hover {
+  box-shadow: 0 0 15px rgba(0,255,136,0.2);
+  border-color: rgba(0,255,136,0.4);
+}
+
+/* Mini chart */
+.mini-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 30px;
+}
+.mini-chart-bar {
+  flex: 1;
+  background: var(--accent);
+  opacity: 0.6;
+  border-radius: 1px 1px 0 0;
+  transition: height 0.3s ease;
+}
