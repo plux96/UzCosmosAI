@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: uzcosmos-ai
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/status
+    envVars:
+      - key: NASA_API_KEY
+        value: DEMO_KEY

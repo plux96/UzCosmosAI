@@ -116,27 +116,49 @@ async def websocket_endpoint(websocket: WebSocket):
         await event_bus.disconnect_ws(websocket)
 
 
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    return """
-    <html>
-    <head><title>UzCosmos AI</title></head>
-    <body style="background:#0a0a2e;color:#00ff88;font-family:monospace;padding:40px;">
-        <h1>UzCosmos AI — Mission Control</h1>
-        <p>Backend is running. Open frontend at <a href="http://localhost:5173" style="color:#00ffff;">http://localhost:5173</a></p>
-        <p>API Status: <a href="/api/status" style="color:#00ffff;">/api/status</a></p>
-        <p>API Docs: <a href="/docs" style="color:#00ffff;">/docs</a></p>
-    </body>
-    </html>
-    """
+# Serve built frontend static files (for production / Docker)
+import os
+FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "frontend", "dist")
+if os.path.isdir(FRONTEND_DIR):
+    from fastapi.staticfiles import StaticFiles
+    from starlette.responses import FileResponse
+
+    @app.get("/assets/{rest_of_path:path}")
+    async def serve_assets(rest_of_path: str):
+        file_path = os.path.join(FRONTEND_DIR, "assets", rest_of_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return HTMLResponse("Not found", 404)
+
+    # Serve textures
+    app.mount("/textures", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "frontend", "public", "textures")), name="textures")
+
+    @app.get("/{rest_of_path:path}")
+    async def serve_spa(rest_of_path: str):
+        """Serve frontend SPA — all non-API routes go to index.html"""
+        # Don't catch API/WS routes
+        if rest_of_path.startswith(("api/", "ws", "docs", "openapi")):
+            return HTMLResponse("Not found", 404)
+        file_path = os.path.join(FRONTEND_DIR, rest_of_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+else:
+    @app.get("/", response_class=HTMLResponse)
+    async def root():
+        return """<html><body style="background:#0a0a2e;color:#00ff88;font-family:monospace;padding:40px;">
+        <h1>UzCosmos AI</h1><p>Backend running. Frontend: <a href="http://localhost:5173" style="color:#00ffff;">localhost:5173</a></p>
+        <p>API: <a href="/api/status" style="color:#00ffff;">/api/status</a> | <a href="/docs" style="color:#00ffff;">/docs</a></p>
+        </body></html>"""
 
 
 if __name__ == "__main__":
     import uvicorn
+    port = int(os.environ.get("PORT", server_config.PORT))
     uvicorn.run(
         "main:app",
-        host=server_config.HOST,
-        port=server_config.PORT,
+        host="0.0.0.0",
+        port=port,
         reload=False,
         log_level="info",
     )
